@@ -1,0 +1,73 @@
+use database assignments;
+show tables;
+--to know the query from the table which was written by some other and with below query will get all things and constraints as well--
+--SELECT get_ddl('TABLE','asj_sales_data_final_assign1');
+create or replace table ASJ_sales_data_final_assign1
+( 
+  order_id varchar(50),
+  order_date date,
+  ship_date date,
+  ship_mode varchar(50),
+  customer_name varchar(50),
+  segment varchar(50),
+  state varchar(50),
+  country varchar(50),
+  market varchar(50),
+  region varchar(50),
+  product_id varchar(50),
+  category	varchar(50),
+  sub_category varchar(50),
+  product_name string,
+  sales varchar(50),
+  quantity varchar(50),
+  discount varchar(50),
+  profit	varchar(50),
+  shipping_cost varchar(50),
+  order_priority varchar(50),
+  year varchar(50)
+);
+
+describe table ASJ_sales_data_final_assign1;
+
+select * from asj_sales_data_final_assign1;
+
+
+----------Q1. SET PRIMARY KEY.---
+Alter table ASJ_sales_data_final_assign1
+add primary key(order_id);
+
+describe table ASJ_sales_data_final_assign1;
+
+-----Q2.  CHECK THE ORDER DATE AND SHIP DATE TYPE AND THINK IN WHICH DATA TYPE YOU HAVE TO CHANGE.--
+/*This one while i was loading, i have made changes in excel as date format;*/
+
+--Q3. EXTACT THE LAST NUMBER AFTER THE - AND CREATE OTHER COLUMN AND UPDATE IT.
+create or replace table  ASJ_sales_data_final_assign1 as 
+select *, split_part(order_id,'-','3') order_no from ASJ_sales_data_final_assign1 ;
+
+/* Q4. FLAG ,IF DISCOUNT IS GREATER THEN 0 THEN  YES ELSE FALSE AND PUT IT IN NEW COLUMN FRO EVERY ORDER ID.*/ 
+create or replace table  ASJ_sales_data_final_assign1 as
+select * ,case
+            when discount >0 then 'yes'
+            else 'No'
+          end as discount_flag 
+          from ASJ_sales_data_final_assign1;
+/*Q5. FIND OUT HOW MUCH DAYS TAKEN FOR EACH ORDER TO PROCESS FOR THE SHIPMENT FOR EVERY ORDER ID.*/
+
+--DATEDIFF( <date_or_time_part>, <date_or_time_expr1>, <date_or_time_expr2> )
+create or replace table  ASJ_sales_data_final_assign1 as
+select *,datediff(days,order_date,ship_date) as days_for_shipment from ASJ_sales_data_final_assign1;
+
+/*Q6. FLAG THE PROCESS DAY AS BY RATING IF IT TAKES LESS OR EQUAL 3 DAYS MAKE 5
+,                              LESS OR EQUAL THAN 6 DAYS BUT MORE THAN 3 MAKE 4,
+                                            LESS THAN 10 BUT MORE THAN 6 MAKE 3,
+                                                            MORE THAN 10 MAKE IT 2 FOR EVERY ORDER ID.*/
+create or replace table  ASJ_sales_data_final_assign1 as 
+select *,case
+             when days_for_shipment <=3 then 5
+             when days_for_shipment BETWEEN 4 AND 6 then 4
+             when days_for_shipment BETWEEN 7 AND 10 then 3
+             else 2
+         end as revised_processed_days
+from ASJ_sales_data_final_assign1;
+--select * from ASJ_sales_data_final_assign1 where days_for_shipment=7; -- 
